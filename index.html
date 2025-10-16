@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>عائلة نعومة نعومتك للألعاب</title>
+<style>
+:root{
+--bg:#fff0f8;--card:#fff;--accent:#ff6fa3;--accent2:#ffd9ec;--text:#2b2b2b;--heart:#ff1a75;
+}
+body{
+margin:0;padding:0;font-family:sans-serif;
+background: linear-gradient(45deg, #ff6fa3, #ff85c1, #ffd9ec, #ffe0f0);
+background-size: 400% 400%;
+animation: gradientBG 10s ease infinite;
+display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;transition: all 0.5s ease;
+}
+@keyframes gradientBG {
+0% {background-position: 0% 50%;}
+50% {background-position: 100% 50%;}
+100% {background-position: 0% 50%;}
+}
+.card{
+background:var(--card);padding:25px 30px;border-radius:22px;box-shadow:0 12px 40px rgba(0,0,0,0.15);
+width:320px;text-align:center;transition: all 0.3s ease;
+}
+.card h1,h2{
+margin:0 0 15px 0;
+}
+button{
+padding:12px 18px;border:none;border-radius:12px;font-weight:700;cursor:pointer;margin-top:12px;transition: all 0.3s ease;
+}
+button:hover{transform:scale(1.05);}
+.hidden{display:none;}
+.options{display:flex;flex-direction:column;gap:10px;margin-top:10px;}
+.opt{
+padding:12px;border-radius:12px;background:var(--accent2);cursor:pointer;
+border:1px solid #f2f2f2;transition: all 0.2s ease;font-weight:600;
+}
+.opt:hover{background:var(--accent);color:#fff;}
+.timer{font-weight:800;color:var(--accent);margin-top:10px;height:20px;}
+.timerBar{height:12px;background:#ff6fa3;border-radius:6px;margin-top:6px;transition: width 1s linear;}
+.feedback{margin-top:12px;font-weight:700;font-size:18px;}
+.resultCard h2{
+  font-size:28px;
+  background: linear-gradient(45deg, #ff6fa3, #ff85c1, #ffd9ec);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 2px 2px 6px rgba(0,0,0,0.3);
+  animation: glow 2s ease-in-out infinite alternate;
+}
+.resultCard p{
+  font-size:22px;
+  font-weight:700;
+  color:#ff6fa3;
+  text-shadow:1px 1px 4px rgba(0,0,0,0.2);
+}
+@keyframes glow {
+  0% {text-shadow: 2px 2px 6px rgba(255,111,163,0.5), 0 0 10px rgba(255,111,163,0.2);}
+  50% {text-shadow: 3px 3px 12px rgba(255,111,163,0.7), 0 0 15px rgba(255,111,163,0.3);}
+  100% {text-shadow: 4px 4px 18px rgba(255,111,163,0.9), 0 0 20px rgba(255,111,163,0.5);}
+}
+.resultBtn {
+  padding: 12px 20px;
+  font-weight: 700;
+  font-size: 16px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  background: linear-gradient(45deg, #ff6fa3, #ff85c1, #ffd9ec);
+  background-size: 300% 300%;
+  color: #fff;
+  transition: all 0.4s ease;
+  box-shadow: 0 4px 15px rgba(255,111,163,0.4);
+  text-shadow: 1px 1px 4px rgba(0,0,0,0.3);
+  animation: gradientBG 3s ease infinite;
+}
+.resultBtn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 6px 20px rgba(255,111,163,0.6);
+}
+.heart{color:var(--heart);}
+input{
+width:85%;padding:10px;margin:6px 0;border:none;border-radius:12px;font-size:15px;color:#2b2b2b;background: rgba(255,111,163,0.15);
+}
+input::placeholder{color:#2b2b2b;}
+</style>
+</head>
+<body>
+
+<div class="card" id="welcomeCard">
+<h1>🌸 أهلاً بك في عائلة نعومة نعومتك للألعاب 🌸</h1>
+<p>اكتب اسمك والرمز للبدء</p>
+<input id="nameInput" type="text" placeholder="اكتب اسمك">
+<input id="codeInput" type="text" placeholder="الرمز الوحيد">
+<button id="startBtn">ابدأ اللعبة</button>
+</div>
+
+<div class="card hidden" id="messageCard">
+<h2 id="welcomeMsg"></h2>
+</div>
+
+<div class="card hidden" id="quizCard">
+<div id="questionArea"></div>
+<div class="timer" id="timer">01:00</div>
+<div class="timerBar" id="timerBar"></div>
+<div class="feedback" id="feedback"></div>
+</div>
+
+<div class="card hidden resultCard" id="resultCard">
+<h2>✨ مبارك لك هذا الفوز <span class="heart">❤️</span> <span id="playerResultName"></span> ✨</h2>
+<p id="resultText"></p>
+<div>
+<button class="resultBtn" id="copyBtn">نسخ النتيجة</button>
+<button class="resultBtn" id="goFamilyBtn">اذهب إلى عائلتك</button>
+<button class="resultBtn" id="restartBtn">إعادة اللعبة</button>
+</div>
+</div>
+
+<script>
+const GAME_CODE='الحمدالله';
+const FAMILY_LINK='https://www.facebook.com/profile.php?id=61581366775114';
+
+const welcomeCard=document.getElementById('welcomeCard');
+const messageCard=document.getElementById('messageCard');
+const quizCard=document.getElementById('quizCard');
+const resultCard=document.getElementById('resultCard');
+const nameInput=document.getElementById('nameInput');
+const codeInput=document.getElementById('codeInput');
+const startBtn=document.getElementById('startBtn');
+const welcomeMsg=document.getElementById('welcomeMsg');
+const questionArea=document.getElementById('questionArea');
+const timerEl=document.getElementById('timer');
+const timerBar=document.getElementById('timerBar');
+const feedback=document.getElementById('feedback');
+const resultText=document.getElementById('resultText');
+const playerResultName=document.getElementById('playerResultName');
+const copyBtn=document.getElementById('copyBtn');
+const goFamilyBtn=document.getElementById('goFamilyBtn');
+const restartBtn=document.getElementById('restartBtn');
+
+let playerName='';
+let currentQ=0;
+let score=0;
+let timeLeft=60;
+let timerInterval;
+
+// ✅ تخزين حالة استخدام الرمز
+let usedCode = localStorage.getItem('usedCode') === 'true';
+
+const QUESTIONS=[
+  {q:"ما هو الحديث الذي يقول: 'من صلى عليَّ صلاةً واحدةً صلّى الله عليه بها عشراً'؟", opts:["صحيح البخاري","صحيح مسلم","الترمذي","ابن ماجه"],a:1},
+  {q:"أي حديث يوضح فضل الصدقة على الفقراء؟", opts:["من تصدق بعدل تمرة","من صام رمضان","من حج البيت","من غفر الله له"],a:0},
+  {q:"ما الحديث الذي يحث على حسن الخلق؟", opts:["ليس المؤمن بالطعان","الصوم جنة","من لا يشكر الناس لا يشكر الله","من قال لا إله إلا الله"],a:2},
+  {q:"أي من هذه لوحات شهيرة رسمها ليوناردو دافنشي؟", opts:["الموناليزا","الصرخة","ليلة النجوم","الفتاة ذات القرط اللؤلؤي"],a:0},
+  {q:"ما هو لون السماء وقت الغروب غالبًا؟", opts:["أحمر وبرتقالي","أخضر","أزرق غامق","أصفر فقط"],a:0},
+  {q:"أي عنصر من الطبيعة يعتبر أساس الجمال في التصميم الداخلي؟", opts:["الخشب","الحديد","البلاستيك","الخرسانة"],a:0},
+  {q:"أفضل طريقة لحل النزاع بين الأصدقاء هي؟", opts:["التجاهل","المصارحة الهادئة","الصراخ","الانتقام"],a:1},
+  {q:"ما أهم صفة يجب توافرها في القائد الاجتماعي؟", opts:["الطيبة","الصدق","الكرم","الشجاعة"],a:1},
+  {q:"كيف يمكن بناء ثقة قوية بين الناس؟", opts:["الوعود الكاذبة","الصدق والوفاء","التجاهل","الثرثرة"],a:1},
+  {q:"أي من هذه الأشجار تنتج أكبر كمية أكسجين؟", opts:["الشجرة الزيتية","البلوط","الصنوبر","النخيل"],a:2}
+];
+
+startBtn.onclick=()=>{
+    const name=nameInput.value.trim();
+    const code=codeInput.value.trim();
+    if(!name){alert('الرجاء إدخال الاسم'); return;}
+    
+    if(usedCode){
+        alert('⚠️ هذا الرمز تم استخدامه من قبل ولا يمكن استخدامه مرة أخرى');
+        return;
+    }
+
+    if(code!==GAME_CODE){alert('الرمز غير صحيح'); return;}
+
+    // ✅ تسجيل أن الرمز استخدم مرة واحدة فقط
+    localStorage.setItem('usedCode','true');
+    usedCode = true;
+
+    playerName=name;
+    welcomeCard.classList.add('hidden');
+    messageCard.classList.remove('hidden');
+    welcomeMsg.textContent=`أهلاً بكي ${name} في عائلة نعومتك`;
+    const msg=new SpeechSynthesisUtterance(`أهلاً بكي ${name} في عائلة نعومتك`);
+    msg.lang='ar-SA';
+    speechSynthesis.speak(msg);
+    setTimeout(()=>{messageCard.classList.add('hidden'); startQuiz();},5000);
+}
+
+function startQuiz(){
+    quizCard.classList.remove('hidden');
+    showQuestion();
+    startTimer();
+}
+
+function startTimer(){
+    timeLeft=60;
+    updateTimer();
+    timerInterval=setInterval(()=>{
+        timeLeft--;
+        updateTimer();
+        if(timeLeft<=0){nextQuestion();}
+    },1000);
+}
+
+function updateTimer(){
+    timerEl.textContent=String(Math.floor(timeLeft/60)).padStart(2,'0')+":"+String(timeLeft%60).padStart(2,'0');
+    timerBar.style.width=(timeLeft/60*100)+'%';
+}
+
+function showQuestion(){
+    if(currentQ>=QUESTIONS.length){finishQuiz(); return;}
+    timeLeft=60;
+    updateTimer();
+    feedback.textContent='';
+    const q=QUESTIONS[currentQ];
+    let html=`<h3>سؤال ${currentQ+1}: ${q.q}</h3><div class="options">`;
+    q.opts.forEach((o,i)=>{html+=`<div class="opt" onclick="selectOption(${i})">${o}</div>`;});
+    html+='</div>';
+    questionArea.innerHTML=html;
+}
+
+function selectOption(i){
+    const q=QUESTIONS[currentQ];
+    if(i===q.a){
+        score+=10;
+        feedback.textContent=`إجابة صحيحة ✅ ${playerName}`;
+    }else{
+        feedback.textContent=`إجابة خاطئة ❌ ${playerName} ههههه`;
+    }
+    setTimeout(()=>{nextQuestion();},1500);
+}
+
+function nextQuestion(){
+    currentQ++;
+    showQuestion();
+}
+
+function finishQuiz(){
+    clearInterval(timerInterval);
+    quizCard.classList.add('hidden');
+    resultCard.classList.remove('hidden');
+    playerResultName.textContent=playerName;
+    resultText.textContent=`لقد حصلت على ${score} من ${QUESTIONS.length*10} نقطة!`;
+}
+
+copyBtn.onclick=async()=>{
+    try{
+        await navigator.clipboard.writeText(resultText.textContent);
+        alert('تم نسخ النتيجة!');
+    }catch(e){alert('تعذر النسخ!');}
+}
+
+goFamilyBtn.onclick=()=>{window.open(FAMILY_LINK,'_blank');}
+
+restartBtn.onclick=()=>{
+    resultText.textContent='';
+    currentQ=0;
+    score=0;
+    resultCard.classList.add('hidden');
+    messageCard.classList.remove('hidden');
+    welcomeMsg.textContent=`هههههه 😆 لقد خدعناكي ${playerName}!`;
+    
+    const msg=new SpeechSynthesisUtterance(`هههههه لقد خدعناكي ${playerName}`);
+    msg.lang='ar-SA';
+    msg.pitch=2.2;
+    msg.rate=1.1;
+    speechSynthesis.speak(msg);
+
+    setTimeout(()=>{
+        messageCard.classList.add('hidden');
+        resultCard.classList.remove('hidden');
+        resultText.textContent="🎉 حظ موفق في مسابقتك القادمة! 🌟";
+    },3000);
+}
+</script>
+</body>
+</html>
